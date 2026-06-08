@@ -5,6 +5,13 @@ Toutes les évolutions notables de ce projet sont documentées dans ce fichier.
 Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 et le projet suit le [versionnage sémantique](https://semver.org/lang/fr/).
 
+## [0.2.1] - 2026-06-08
+
+### Modifié
+- README entièrement réécrit en anglais et enrichi (motivation, exemples
+  détaillés, sections sur le pattern comparateur, la persistance et
+  l'optimisation de seuil) pour une meilleure lisibilité internationale sur PyPI.
+
 ## [0.2.0] - 2026-06-08
 
 ### Ajouté

@@ -17,7 +17,7 @@ depuis les sous-modules ::
 from __future__ import annotations
 
 # Version du package (lisible depuis Python, ex : nanuq.__version__)
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 
 # =============================================================================
