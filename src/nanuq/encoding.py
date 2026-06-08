@@ -330,9 +330,9 @@ def one_hot_encode_sklearn(
     # Initialisation du OneHotEncoder
     encoder = OneHotEncoder(
         drop="first" if drop_first else None,
-        sparse_output=False,            # array dense, plus simple à manipuler
+        sparse_output=False,  # array dense, plus simple à manipuler
         handle_unknown=handle_unknown,
-        dtype=int,                      # 0/1 plutôt que True/False
+        dtype=int,  # 0/1 plutôt que True/False
     )
 
     # Fit + transform

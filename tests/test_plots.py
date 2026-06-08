@@ -133,7 +133,10 @@ def test_plot_train_test_curve_returns_dataframe(classification_data) -> None:
 
     df = plot_train_test_curve(
         DecisionTreeClassifier,
-        X_train, y_train, X_test, y_test,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
         param_name="max_depth",
         param_values=[2, 5, 10],
         scoring="accuracy",
@@ -153,7 +156,10 @@ def test_plot_train_test_curve_with_plot(classification_data) -> None:
 
     plot_train_test_curve(
         DecisionTreeClassifier,
-        X[:half], y[:half], X[half:], y[half:],
+        X[:half],
+        y[:half],
+        X[half:],
+        y[half:],
         param_name="max_depth",
         param_values=[2, 5, 10],
         scoring="accuracy",
@@ -230,9 +236,9 @@ def test_plot_feature_importances_raises_on_invalid_model() -> None:
 def test_plot_boosting_staged_loss_returns_scores(classification_data) -> None:
     """plot_boosting_staged_loss renvoie un array de longueur n_estimators."""
     X, y = classification_data
-    model = GradientBoostingClassifier(
-        n_estimators=20, learning_rate=0.1, random_state=42
-    ).fit(X, y)
+    model = GradientBoostingClassifier(n_estimators=20, learning_rate=0.1, random_state=42).fit(
+        X, y
+    )
 
     scores = plot_boosting_staged_loss(model, X, y)
 

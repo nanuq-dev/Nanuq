@@ -13,9 +13,7 @@ from nanuq import compute_silhouette_scores, train_kmeans
 @pytest.fixture
 def blob_data() -> np.ndarray:
     """3 blobs bien séparés -> k=3 doit être optimal."""
-    X, _ = make_blobs(
-        n_samples=300, centers=3, cluster_std=0.6, random_state=42
-    )
+    X, _ = make_blobs(n_samples=300, centers=3, cluster_std=0.6, random_state=42)
     return X
 
 

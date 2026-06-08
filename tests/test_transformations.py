@@ -52,9 +52,7 @@ def test_sqrt_transform_creates_suffixed_column(df_positive: pd.DataFrame) -> No
 
     assert "revenu_sqrt" in result.columns
     # sqrt(x) = original ** 0.5
-    np.testing.assert_allclose(
-        result["revenu_sqrt"], np.sqrt(df_positive["revenu"]), rtol=1e-10
-    )
+    np.testing.assert_allclose(result["revenu_sqrt"], np.sqrt(df_positive["revenu"]), rtol=1e-10)
 
 
 # =============================================================================
@@ -108,9 +106,7 @@ def test_power_transform_yeo_johnson(df_positive: pd.DataFrame) -> None:
 
     assert isinstance(pt, PowerTransformer)
     # Après PowerTransformer, moyenne ≈ 0
-    np.testing.assert_allclose(
-        result[["revenu", "age"]].mean(), [0, 0], atol=1e-10
-    )
+    np.testing.assert_allclose(result[["revenu", "age"]].mean(), [0, 0], atol=1e-10)
 
 
 def test_power_transform_accepts_negative_values() -> None:

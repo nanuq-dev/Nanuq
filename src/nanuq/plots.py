@@ -121,8 +121,8 @@ def plot_correlation_matrix(
     plt.figure(figsize=figsize)
     sns.heatmap(
         df.corr(numeric_only=True),
-        annot=True,           # affiche les coefficients
-        cmap="coolwarm",      # rouge = positif, bleu = négatif
+        annot=True,  # affiche les coefficients
+        cmap="coolwarm",  # rouge = positif, bleu = négatif
     )
     plt.show()
 
@@ -239,23 +239,21 @@ def plot_train_test_curve(
                 train_score = roc_auc_score(y_train, y_train_proba[:, 1])
                 test_score = roc_auc_score(y_test, y_test_proba[:, 1])
             else:
-                train_score = roc_auc_score(
-                    y_train, y_train_proba, multi_class="ovr"
-                )
-                test_score = roc_auc_score(
-                    y_test, y_test_proba, multi_class="ovr"
-                )
+                train_score = roc_auc_score(y_train, y_train_proba, multi_class="ovr")
+                test_score = roc_auc_score(y_test, y_test_proba, multi_class="ovr")
         else:
             # accuracy par défaut (ou si predict_proba indisponible)
             train_score = accuracy_score(y_train, clf.predict(X_train))
             test_score = accuracy_score(y_test, clf.predict(X_test))
 
-        rows.append({
-            param_name: value,
-            "train": float(train_score),
-            "test": float(test_score),
-            "gap": float(train_score - test_score),
-        })
+        rows.append(
+            {
+                param_name: value,
+                "train": float(train_score),
+                "test": float(test_score),
+                "gap": float(train_score - test_score),
+            }
+        )
 
     df_scores = pd.DataFrame(rows)
 
@@ -267,17 +265,25 @@ def plot_train_test_curve(
 
         plt.figure(figsize=figsize)
         plt.plot(
-            df_scores[param_name], df_scores["train"],
-            marker="o", label="train", linewidth=2,
+            df_scores[param_name],
+            df_scores["train"],
+            marker="o",
+            label="train",
+            linewidth=2,
         )
         plt.plot(
-            df_scores[param_name], df_scores["test"],
-            marker="s", label="test", linewidth=2,
+            df_scores[param_name],
+            df_scores["test"],
+            marker="s",
+            label="test",
+            linewidth=2,
         )
         plt.axvline(
-            best_value, linestyle="--", color="green", alpha=0.6,
-            label=f"Sweet spot : {param_name}={best_value} "
-                  f"(test={best_score:.3f})",
+            best_value,
+            linestyle="--",
+            color="green",
+            alpha=0.6,
+            label=f"Sweet spot : {param_name}={best_value} (test={best_score:.3f})",
         )
         plt.xlabel(param_name)
         plt.ylabel(scoring.upper())
@@ -388,7 +394,8 @@ def plot_feature_importances(
         )
 
     importances = pd.Series(
-        model.feature_importances_, index=feature_names,
+        model.feature_importances_,
+        index=feature_names,
     ).sort_values(ascending=False)
 
     to_plot = importances.head(top_n) if top_n else importances
@@ -459,7 +466,10 @@ def plot_boosting_staged_loss(
     plt.figure(figsize=figsize)
     plt.plot(range(1, len(scores) + 1), scores, linewidth=2)
     plt.axvline(
-        best_iter + 1, linestyle="--", color="green", alpha=0.6,
+        best_iter + 1,
+        linestyle="--",
+        color="green",
+        alpha=0.6,
         label=f"Min : iter={best_iter + 1} (loss={best_loss:.4f})",
     )
     plt.xlabel("Itération (nombre d'arbres)")

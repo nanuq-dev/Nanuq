@@ -127,33 +127,25 @@ class TestSaveLoadArtifacts:
 
         loaded_model, loaded_meta = load_artifacts(tmp_path)
         # Le modèle rechargé doit produire les mêmes prédictions
-        np.testing.assert_array_equal(
-            model.predict_proba(X), loaded_model.predict_proba(X)
-        )
+        np.testing.assert_array_equal(model.predict_proba(X), loaded_model.predict_proba(X))
         # Les métadonnées doivent contenir les mêmes clés essentielles
         assert loaded_meta["threshold"] == valid_metadata["threshold"]
         assert loaded_meta["feature_order"] == valid_metadata["feature_order"]
         assert loaded_meta["metrics"] == valid_metadata["metrics"]
 
-    def test_overwrite_false_raises_if_exists(
-        self, tmp_path, trained_classifier, valid_metadata
-    ):
+    def test_overwrite_false_raises_if_exists(self, tmp_path, trained_classifier, valid_metadata):
         model, _, _ = trained_classifier
         save_artifacts(model, valid_metadata, tmp_path)
         with pytest.raises(FileExistsError):
             save_artifacts(model, valid_metadata, tmp_path)
 
-    def test_overwrite_true_allows_replacement(
-        self, tmp_path, trained_classifier, valid_metadata
-    ):
+    def test_overwrite_true_allows_replacement(self, tmp_path, trained_classifier, valid_metadata):
         model, _, _ = trained_classifier
         save_artifacts(model, valid_metadata, tmp_path)
         # Une 2e sauvegarde avec overwrite=True doit fonctionner
         save_artifacts(model, valid_metadata, tmp_path, overwrite=True)
 
-    def test_creates_output_dir_if_missing(
-        self, tmp_path, trained_classifier, valid_metadata
-    ):
+    def test_creates_output_dir_if_missing(self, tmp_path, trained_classifier, valid_metadata):
         model, _, _ = trained_classifier
         target = tmp_path / "nouveau" / "sous" / "dossier"
         save_artifacts(model, valid_metadata, target)
@@ -168,16 +160,16 @@ class TestSaveLoadArtifacts:
         # Corrompre le modèle (le remplacer par un autre)
         other = LogisticRegression()
         from joblib import dump
+
         dump(other, tmp_path / "model.joblib")
         with pytest.raises(ValueError, match="Hash du modèle"):
             load_artifacts(tmp_path)
 
-    def test_hash_verification_can_be_disabled(
-        self, tmp_path, trained_classifier, valid_metadata
-    ):
+    def test_hash_verification_can_be_disabled(self, tmp_path, trained_classifier, valid_metadata):
         model, _, _ = trained_classifier
         save_artifacts(model, valid_metadata, tmp_path)
         from joblib import dump
+
         dump(LogisticRegression(), tmp_path / "model.joblib")
         # Avec verify_hash=False, ne lève pas
         loaded_model, _ = load_artifacts(tmp_path, verify_hash=False)
@@ -200,9 +192,7 @@ class TestBundle:
         save_model_bundle(model, valid_metadata, bundle_path)
 
         loaded_model, loaded_meta = load_model_bundle(bundle_path)
-        np.testing.assert_array_equal(
-            model.predict_proba(X), loaded_model.predict_proba(X)
-        )
+        np.testing.assert_array_equal(model.predict_proba(X), loaded_model.predict_proba(X))
         assert loaded_meta["threshold"] == 0.4
 
     def test_overwrite_protection(self, tmp_path, trained_classifier, valid_metadata):
@@ -269,13 +259,15 @@ class TestPredictWithThreshold:
         X_incomplete = X.drop(columns=["feat_0"])
         with pytest.raises(ValueError, match="Colonnes manquantes"):
             predict_with_threshold(
-                model, X_incomplete,
+                model,
+                X_incomplete,
                 threshold=0.5,
                 feature_order=X.columns.tolist(),
             )
 
     def test_non_probabilistic_model_raises(self):
         from sklearn.svm import LinearSVC
+
         # LinearSVC n'a pas de predict_proba
         model = LinearSVC()
         np.random.seed(42)

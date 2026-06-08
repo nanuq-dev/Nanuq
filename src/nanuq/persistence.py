@@ -62,14 +62,10 @@ def _validate_metadata(metadata: dict[str, Any]) -> None:
 
     threshold = metadata["threshold"]
     if not isinstance(threshold, (int, float)) or not 0 <= threshold <= 1:
-        raise ValueError(
-            f"Le seuil doit être un nombre entre 0 et 1, reçu : {threshold!r}."
-        )
+        raise ValueError(f"Le seuil doit être un nombre entre 0 et 1, reçu : {threshold!r}.")
 
     feature_order = metadata["feature_order"]
-    if not isinstance(feature_order, list) or not all(
-        isinstance(f, str) for f in feature_order
-    ):
+    if not isinstance(feature_order, list) or not all(isinstance(f, str) for f in feature_order):
         raise ValueError("feature_order doit être une liste de chaînes (noms de colonnes).")
 
 
@@ -383,8 +379,7 @@ def predict_with_threshold(
         missing = set(feature_order) - set(X.columns)
         if missing:
             raise ValueError(
-                f"Colonnes manquantes dans X : {sorted(missing)}. "
-                f"Attendues : {feature_order}."
+                f"Colonnes manquantes dans X : {sorted(missing)}. Attendues : {feature_order}."
             )
         X = X[feature_order]
 

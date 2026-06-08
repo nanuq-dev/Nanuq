@@ -218,7 +218,10 @@ def logistic_regression_pipeline(
 
     # ----- 2. Split train / test -----
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state,
+        X,
+        y,
+        test_size=test_size,
+        random_state=random_state,
     )
 
     # ----- 3. Entraînement -----
@@ -332,7 +335,10 @@ def ridge_regression_pipeline(
 
     # ----- Split train/test -----
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state,
+        X,
+        y,
+        test_size=test_size,
+        random_state=random_state,
     )
 
     # ----- Entraînement -----
@@ -341,7 +347,12 @@ def ridge_regression_pipeline(
 
     # ----- Évaluation -----
     eval_result = evaluate_regressor(
-        model, X_train, y_train, X_test, y_test, verbose=False,
+        model,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        verbose=False,
     )
 
     return {
@@ -410,7 +421,10 @@ def lasso_regression_pipeline(
 
     # Split
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state,
+        X,
+        y,
+        test_size=test_size,
+        random_state=random_state,
     )
 
     # Entraînement
@@ -419,7 +433,12 @@ def lasso_regression_pipeline(
 
     # Évaluation
     eval_result = evaluate_regressor(
-        model, X_train, y_train, X_test, y_test, verbose=False,
+        model,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        verbose=False,
     )
 
     # Identification des variables réellement utilisées (coef != 0)

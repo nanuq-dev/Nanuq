@@ -28,9 +28,7 @@ def regression_df() -> pd.DataFrame:
 @pytest.fixture
 def classification_df() -> pd.DataFrame:
     """DataFrame de classification binaire : 5 features + target 0/1."""
-    X, y = make_classification(
-        n_samples=300, n_features=5, n_informative=3, random_state=42
-    )
+    X, y = make_classification(n_samples=300, n_features=5, n_informative=3, random_state=42)
     df = pd.DataFrame(X, columns=[f"feat_{i}" for i in range(5)])
     df["target"] = y
     return df
@@ -43,9 +41,7 @@ def classification_df() -> pd.DataFrame:
 
 def test_linear_regression_univariate(regression_df: pd.DataFrame) -> None:
     """Renvoie un modèle entraîné + prédictions + métriques."""
-    reg, y_pred, results = linear_regression_univariate(
-        regression_df, "feat_0", "target"
-    )
+    reg, y_pred, results = linear_regression_univariate(regression_df, "feat_0", "target")
 
     assert isinstance(reg, LinearRegression)
     assert len(y_pred) == len(regression_df)
@@ -90,13 +86,16 @@ def test_linear_regression_multivariate_no_scaling(
 def test_logistic_regression_pipeline(classification_df: pd.DataFrame) -> None:
     """Pipeline complet : structure du résultat."""
     features = [c for c in classification_df.columns if c != "target"]
-    result = logistic_regression_pipeline(
-        classification_df, features, "target", random_state=42
-    )
+    result = logistic_regression_pipeline(classification_df, features, "target", random_state=42)
 
     expected_keys = {
-        "model", "scaler", "y_test", "y_pred",
-        "y_proba", "confusion_matrix", "metrics",
+        "model",
+        "scaler",
+        "y_test",
+        "y_pred",
+        "y_proba",
+        "confusion_matrix",
+        "metrics",
     }
     assert set(result.keys()) == expected_keys
     assert isinstance(result["model"], LogisticRegression)
@@ -112,12 +111,10 @@ def test_logistic_regression_pipeline_threshold(
     features = [c for c in classification_df.columns if c != "target"]
 
     res_low = logistic_regression_pipeline(
-        classification_df, features, "target",
-        decision_threshold=0.2, random_state=42
+        classification_df, features, "target", decision_threshold=0.2, random_state=42
     )
     res_high = logistic_regression_pipeline(
-        classification_df, features, "target",
-        decision_threshold=0.8, random_state=42
+        classification_df, features, "target", decision_threshold=0.8, random_state=42
     )
 
     n_pos_low = sum(res_low["y_pred"])
@@ -136,8 +133,13 @@ def test_ridge_pipeline_structure(regression_df: pd.DataFrame) -> None:
     result = ridge_regression_pipeline(regression_df, features, "target", alpha=1.0)
 
     expected_keys = {
-        "model", "scaler", "coefs", "intercept",
-        "train", "test", "diagnosis",
+        "model",
+        "scaler",
+        "coefs",
+        "intercept",
+        "train",
+        "test",
+        "diagnosis",
     }
     assert set(result.keys()) == expected_keys
     assert isinstance(result["model"], Ridge)
@@ -156,9 +158,15 @@ def test_lasso_pipeline_structure(regression_df: pd.DataFrame) -> None:
     result = lasso_regression_pipeline(regression_df, features, "target", alpha=0.5)
 
     expected_keys = {
-        "model", "scaler", "coefs", "intercept",
-        "train", "test", "diagnosis",
-        "n_features_used", "selected_features",
+        "model",
+        "scaler",
+        "coefs",
+        "intercept",
+        "train",
+        "test",
+        "diagnosis",
+        "n_features_used",
+        "selected_features",
     }
     assert set(result.keys()) == expected_keys
     assert isinstance(result["model"], Lasso)
@@ -169,8 +177,6 @@ def test_lasso_pipeline_structure(regression_df: pd.DataFrame) -> None:
 def test_lasso_high_alpha_eliminates_features(regression_df: pd.DataFrame) -> None:
     """Avec un alpha très élevé, Lasso met tous les coefficients à 0."""
     features = [c for c in regression_df.columns if c != "target"]
-    result = lasso_regression_pipeline(
-        regression_df, features, "target", alpha=1e6
-    )
+    result = lasso_regression_pipeline(regression_df, features, "target", alpha=1e6)
     # Avec une régularisation extrême, tout est à 0
     assert result["n_features_used"] == 0

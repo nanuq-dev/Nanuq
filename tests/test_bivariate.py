@@ -35,34 +35,34 @@ def synthetic_df() -> pd.DataFrame:
     target = rng.integers(0, 2, size=n)
 
     # Numérique avec signal fort : class 0 ~ N(50, 5), class 1 ~ N(70, 5)
-    strong_num = np.where(target == 0,
-                          rng.normal(50, 5, size=n),
-                          rng.normal(70, 5, size=n))
+    strong_num = np.where(target == 0, rng.normal(50, 5, size=n), rng.normal(70, 5, size=n))
 
     # Numérique avec signal faible : moyennes proches
-    weak_num = np.where(target == 0,
-                        rng.normal(50, 10, size=n),
-                        rng.normal(52, 10, size=n))
+    weak_num = np.where(target == 0, rng.normal(50, 10, size=n), rng.normal(52, 10, size=n))
 
     # Numérique sans signal : bruit pur
     no_signal_num = rng.normal(50, 10, size=n)
 
     # Catégorielle avec signal fort
-    strong_cat = np.where(target == 0,
-                          rng.choice(["A", "B"], size=n, p=[0.8, 0.2]),
-                          rng.choice(["A", "B"], size=n, p=[0.2, 0.8]))
+    strong_cat = np.where(
+        target == 0,
+        rng.choice(["A", "B"], size=n, p=[0.8, 0.2]),
+        rng.choice(["A", "B"], size=n, p=[0.2, 0.8]),
+    )
 
     # Catégorielle sans signal
     no_signal_cat = rng.choice(["X", "Y", "Z"], size=n)
 
-    return pd.DataFrame({
-        "strong_signal_num": strong_num,
-        "weak_signal_num": weak_num,
-        "no_signal_num": no_signal_num,
-        "strong_signal_cat": strong_cat,
-        "no_signal_cat": no_signal_cat,
-        "target": target,
-    })
+    return pd.DataFrame(
+        {
+            "strong_signal_num": strong_num,
+            "weak_signal_num": weak_num,
+            "no_signal_num": no_signal_num,
+            "strong_signal_cat": strong_cat,
+            "no_signal_cat": no_signal_cat,
+            "target": target,
+        }
+    )
 
 
 # =============================================================================
@@ -203,7 +203,9 @@ def test_target_correlations_string_target_raises(
 
     with pytest.raises(ValueError, match="numérique"):
         target_correlations(
-            df, features=["strong_signal_num"], target="target",
+            df,
+            features=["strong_signal_num"],
+            target="target",
         )
 
 
@@ -223,8 +225,10 @@ def test_rank_features_combines_both_tests(synthetic_df: pd.DataFrame) -> None:
 
     # Toutes les features sont là
     assert set(result["feature"]) == {
-        "strong_signal_num", "no_signal_num",
-        "strong_signal_cat", "no_signal_cat",
+        "strong_signal_num",
+        "no_signal_num",
+        "strong_signal_cat",
+        "no_signal_cat",
     }
 
     # Les 2 signaux forts sont en tête

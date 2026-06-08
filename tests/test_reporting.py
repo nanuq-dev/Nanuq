@@ -108,7 +108,8 @@ def test_analyze_column_too_many_nan_recommends_drop() -> None:
     """> 80% de NaN => recommandation 'drop'."""
     df = pd.DataFrame({"x": [np.nan] * 90 + list(range(10))})
     result = _analyze_column(
-        df, "x",
+        df,
+        "x",
         nan_drop_threshold=80.0,
         nan_high_threshold=50.0,
         high_cardinality_threshold=15,
@@ -121,7 +122,8 @@ def test_analyze_column_binary_recommends_encode_binary() -> None:
     """Catégorielle à 2 modalités => 'encode_binary'."""
     df = pd.DataFrame({"genre": ["M", "F", "M", "F", "M"]})
     result = _analyze_column(
-        df, "genre",
+        df,
+        "genre",
         nan_drop_threshold=80.0,
         nan_high_threshold=50.0,
         high_cardinality_threshold=15,
@@ -134,7 +136,8 @@ def test_analyze_column_multi_modalities_recommends_onehot() -> None:
     """Catégorielle à 3-15 modalités => 'encode_onehot'."""
     df = pd.DataFrame({"ville": ["A", "B", "C", "A", "B", "C", "D"]})
     result = _analyze_column(
-        df, "ville",
+        df,
+        "ville",
         nan_drop_threshold=80.0,
         nan_high_threshold=50.0,
         high_cardinality_threshold=15,
@@ -147,7 +150,8 @@ def test_analyze_column_high_cardinality_recommends_binary_repr() -> None:
     """Cardinalité > 15 => 'encode_binary_repr'."""
     df = pd.DataFrame({"id": [f"x_{i}" for i in range(20)]})
     result = _analyze_column(
-        df, "id",
+        df,
+        "id",
         nan_drop_threshold=80.0,
         nan_high_threshold=50.0,
         high_cardinality_threshold=15,
@@ -161,7 +165,8 @@ def test_analyze_column_skewed_numeric_recommends_transform() -> None:
     rng = np.random.default_rng(0)
     df = pd.DataFrame({"revenu": rng.exponential(scale=1000, size=500)})
     result = _analyze_column(
-        df, "revenu",
+        df,
+        "revenu",
         nan_drop_threshold=80.0,
         nan_high_threshold=50.0,
         high_cardinality_threshold=15,
@@ -188,9 +193,7 @@ def test_generate_eda_report_returns_markdown_string(eda_df: pd.DataFrame) -> No
     assert "## 4. Plan d'action recommandé" in md
 
 
-def test_generate_eda_report_writes_file(
-    eda_df: pd.DataFrame, tmp_path: Path
-) -> None:
+def test_generate_eda_report_writes_file(eda_df: pd.DataFrame, tmp_path: Path) -> None:
     """Avec output_path, le rapport est écrit sur disque."""
     output = tmp_path / "rapport.md"
     md = generate_eda_report(eda_df, output_path=str(output))

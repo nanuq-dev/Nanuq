@@ -36,9 +36,7 @@ def df_categorical() -> pd.DataFrame:
 
 def test_encode_binary(df_categorical: pd.DataFrame) -> None:
     """Le mapping Oui/Non → 1/0 fonctionne."""
-    result = encode_binary(
-        df_categorical, "heure_supp", mapping={"Oui": 1, "Non": 0}
-    )
+    result = encode_binary(df_categorical, "heure_supp", mapping={"Oui": 1, "Non": 0})
 
     assert result["heure_supp"].dtype.kind in ("i", "u")  # int
     assert result["heure_supp"].tolist() == [1, 0, 1, 0, 1, 0]
@@ -98,9 +96,7 @@ def test_one_hot_encode_creates_columns(df_categorical: pd.DataFrame) -> None:
 
 def test_one_hot_encode_drop_first(df_categorical: pd.DataFrame) -> None:
     """drop_first=True réduit le nombre de colonnes de 1."""
-    result = one_hot_encode(
-        df_categorical, columns=["departement"], drop_first=True
-    )
+    result = one_hot_encode(df_categorical, columns=["departement"], drop_first=True)
 
     one_hot_cols = [c for c in result.columns if c.startswith("departement_")]
     assert len(one_hot_cols) == 2  # 3 modalités - 1
@@ -128,9 +124,7 @@ def test_one_hot_encode_sklearn_no_columns_present(
     df_categorical: pd.DataFrame,
 ) -> None:
     """Si aucune colonne demandée n'existe, renvoie le DataFrame tel quel."""
-    result = one_hot_encode_sklearn(
-        df_categorical, columns=["colonne_inexistante"]
-    )
+    result = one_hot_encode_sklearn(df_categorical, columns=["colonne_inexistante"])
 
     pd.testing.assert_frame_equal(result, df_categorical)
 

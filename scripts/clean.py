@@ -31,8 +31,8 @@ FILES_TO_REMOVE = [
 
 # Patterns à supprimer récursivement depuis la racine du projet
 GLOB_DIRS_TO_REMOVE = [
-    "*.egg-info",     # à la racine
-    "**/__pycache__", # à tous les niveaux
+    "*.egg-info",  # à la racine
+    "**/__pycache__",  # à tous les niveaux
 ]
 
 GLOB_FILES_TO_REMOVE = [

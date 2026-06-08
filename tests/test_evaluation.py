@@ -32,9 +32,7 @@ def regression_data():
 @pytest.fixture
 def classification_data():
     """Dataset synthétique de classification binaire."""
-    X, y = make_classification(
-        n_samples=200, n_features=5, n_informative=3, random_state=42
-    )
+    X, y = make_classification(n_samples=200, n_features=5, n_informative=3, random_state=42)
     return train_test_split(X, y, test_size=0.2, random_state=42)
 
 
@@ -80,9 +78,7 @@ def test_evaluate_regressor_keys(regression_data) -> None:
     X_train, X_test, y_train, y_test = regression_data
     model = LinearRegression().fit(X_train, y_train)
 
-    result = evaluate_regressor(
-        model, X_train, y_train, X_test, y_test, verbose=False
-    )
+    result = evaluate_regressor(model, X_train, y_train, X_test, y_test, verbose=False)
 
     assert set(result.keys()) == {"train", "test", "diagnosis", "gap"}
     assert set(result["train"].keys()) == {"r2", "rmse", "mae", "mape"}
@@ -93,9 +89,7 @@ def test_evaluate_regressor_metrics_are_floats(regression_data) -> None:
     """Toutes les métriques sont des floats convertibles."""
     X_train, X_test, y_train, y_test = regression_data
     model = LinearRegression().fit(X_train, y_train)
-    result = evaluate_regressor(
-        model, X_train, y_train, X_test, y_test, verbose=False
-    )
+    result = evaluate_regressor(model, X_train, y_train, X_test, y_test, verbose=False)
 
     for split in ("train", "test"):
         for metric_value in result[split].values():
@@ -113,13 +107,15 @@ def test_evaluate_classifier_keys(classification_data) -> None:
     X_train, X_test, y_train, y_test = classification_data
     model = LogisticRegression(max_iter=1000).fit(X_train, y_train)
 
-    result = evaluate_classifier(
-        model, X_train, y_train, X_test, y_test, verbose=False
-    )
+    result = evaluate_classifier(model, X_train, y_train, X_test, y_test, verbose=False)
 
     expected_keys = {
-        "train", "test", "confusion_matrix",
-        "classification_report", "diagnosis", "gap",
+        "train",
+        "test",
+        "confusion_matrix",
+        "classification_report",
+        "diagnosis",
+        "gap",
     }
     assert set(result.keys()) == expected_keys
 
@@ -128,9 +124,7 @@ def test_evaluate_classifier_metrics_panel(classification_data) -> None:
     """train/test contiennent accuracy, precision, recall, f1, auc."""
     X_train, X_test, y_train, y_test = classification_data
     model = LogisticRegression(max_iter=1000).fit(X_train, y_train)
-    result = evaluate_classifier(
-        model, X_train, y_train, X_test, y_test, verbose=False
-    )
+    result = evaluate_classifier(model, X_train, y_train, X_test, y_test, verbose=False)
 
     expected_metrics = {"accuracy", "precision", "recall", "f1", "auc"}
     assert set(result["train"].keys()) == expected_metrics
@@ -150,9 +144,7 @@ def test_cross_validate_model_structure(classification_data) -> None:
     X_train, _, y_train, _ = classification_data
     model = LogisticRegression(max_iter=1000)
 
-    result = cross_validate_model(
-        model, X_train, y_train, cv=3, scoring="accuracy", verbose=False
-    )
+    result = cross_validate_model(model, X_train, y_train, cv=3, scoring="accuracy", verbose=False)
 
     expected_keys = {"scores", "mean", "std", "min", "max", "cv", "scoring"}
     assert set(result.keys()) == expected_keys
@@ -174,7 +166,8 @@ def test_grid_search_cv_finds_best_params(classification_data) -> None:
 
     result = grid_search_cv(
         DecisionTreeClassifier,
-        X_train, y_train,
+        X_train,
+        y_train,
         param_grid={"max_depth": [3, 5, 10]},
         cv=3,
         scoring="accuracy",
@@ -182,9 +175,7 @@ def test_grid_search_cv_finds_best_params(classification_data) -> None:
         verbose=False,
     )
 
-    expected_keys = {
-        "best_params", "best_score", "best_estimator", "results", "cv_results"
-    }
+    expected_keys = {"best_params", "best_score", "best_estimator", "results", "cv_results"}
     assert set(result.keys()) == expected_keys
     # Le best_params doit contenir max_depth
     assert "max_depth" in result["best_params"]
@@ -208,16 +199,12 @@ def test_benchmark_classification_structure(classification_data) -> None:
     }
 
     bench = benchmark_models(
-        models, X_train, y_train, X_test, y_test,
-        task="classification", verbose=False
+        models, X_train, y_train, X_test, y_test, task="classification", verbose=False
     )
 
     assert len(bench) == 2
     # Colonnes attendues
-    expected_cols = {
-        "train_acc", "test_acc", "train_f1", "test_f1",
-        "train_auc", "test_auc", "gap"
-    }
+    expected_cols = {"train_acc", "test_acc", "train_f1", "test_f1", "train_auc", "test_auc", "gap"}
     assert expected_cols.issubset(set(bench.columns))
     # Trié par test_acc décroissant
     assert bench["test_acc"].is_monotonic_decreasing
@@ -229,7 +216,4 @@ def test_benchmark_invalid_task_raises(classification_data) -> None:
     models = {"logreg": LogisticRegression(max_iter=1000)}
 
     with pytest.raises(ValueError, match="invalide"):
-        benchmark_models(
-            models, X_train, y_train, X_test, y_test,
-            task="invalid", verbose=False
-        )
+        benchmark_models(models, X_train, y_train, X_test, y_test, task="invalid", verbose=False)

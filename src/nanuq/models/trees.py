@@ -113,7 +113,10 @@ def random_forest_pipeline(
     y = df[target].values
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state,
+        X,
+        y,
+        test_size=test_size,
+        random_state=random_state,
     )
 
     # ----- Hyperparamètres communs aux deux variantes -----
@@ -133,9 +136,7 @@ def random_forest_pipeline(
     elif task == "regression":
         model = RandomForestRegressor(**common_params)
     else:
-        raise ValueError(
-            f"task='{task}' invalide. Utiliser 'classification' ou 'regression'."
-        )
+        raise ValueError(f"task='{task}' invalide. Utiliser 'classification' ou 'regression'.")
 
     # ----- Entraînement -----
     model.fit(X_train, y_train)
@@ -143,16 +144,27 @@ def random_forest_pipeline(
     # ----- Évaluation -----
     if task == "classification":
         eval_result = evaluate_classifier(
-            model, X_train, y_train, X_test, y_test, verbose=False,
+            model,
+            X_train,
+            y_train,
+            X_test,
+            y_test,
+            verbose=False,
         )
     else:
         eval_result = evaluate_regressor(
-            model, X_train, y_train, X_test, y_test, verbose=False,
+            model,
+            X_train,
+            y_train,
+            X_test,
+            y_test,
+            verbose=False,
         )
 
     # ----- Feature importances (toujours dispo pour RF) -----
     importances = pd.Series(
-        model.feature_importances_, index=features,
+        model.feature_importances_,
+        index=features,
     ).sort_values(ascending=False)
 
     result: dict[str, Any] = {

@@ -30,16 +30,38 @@ from nanuq.exploration import get_column_types
 # Mots-clés (FR + EN) suggérant qu'une colonne devrait contenir des
 # valeurs >= 0 (surface, prix, durée, etc.)
 _POSITIVE_KEYWORDS = [
-    "surface", "area", "aire",
-    "count", "nombre", "nb_", "nb ",
-    "price", "prix", "cost", "cout", "coût",
-    "duree", "durée", "duration",
-    "weight", "poids", "mass", "masse",
-    "amount", "quantite", "quantité", "quantity",
-    "energy", "energie", "énergie",
-    "conso", "consommation",
-    "emission", "émission",
-    "volume", "distance",
+    "surface",
+    "area",
+    "aire",
+    "count",
+    "nombre",
+    "nb_",
+    "nb ",
+    "price",
+    "prix",
+    "cost",
+    "cout",
+    "coût",
+    "duree",
+    "durée",
+    "duration",
+    "weight",
+    "poids",
+    "mass",
+    "masse",
+    "amount",
+    "quantite",
+    "quantité",
+    "quantity",
+    "energy",
+    "energie",
+    "énergie",
+    "conso",
+    "consommation",
+    "emission",
+    "émission",
+    "volume",
+    "distance",
     "occupant",
 ]
 
@@ -102,8 +124,7 @@ def _check_coherence(
     if _is_positive_expected(column) and min_val < 0:
         n_neg = int((series < 0).sum())
         issues.append(
-            f"{n_neg} valeurs négatives (min = {min_val}) "
-            f"sur une variable censée être positive"
+            f"{n_neg} valeurs négatives (min = {min_val}) sur une variable censée être positive"
         )
 
     # 2. Zéros suspects (peu nombreux) sur variables positives
@@ -111,23 +132,16 @@ def _check_coherence(
         n_zero = int((series == 0).sum())
         if 0 < n_zero / len(series) < 0.05:
             issues.append(
-                f"{n_zero} valeurs à zéro (potentiellement aberrantes "
-                f"sur ce type de variable)"
+                f"{n_zero} valeurs à zéro (potentiellement aberrantes sur ce type de variable)"
             )
 
     # 3. Années aberrantes
     if _is_year_column(column):
         current_year = _dt.datetime.now().year
         if min_val < 1800:
-            issues.append(
-                f"Année minimale = {int(min_val)} "
-                f"(antérieure à 1800, à vérifier)"
-            )
+            issues.append(f"Année minimale = {int(min_val)} (antérieure à 1800, à vérifier)")
         if max_val > current_year + 5:
-            issues.append(
-                f"Année maximale = {int(max_val)} "
-                f"(dans le futur — possible erreur)"
-            )
+            issues.append(f"Année maximale = {int(max_val)} (dans le futur — possible erreur)")
 
     # 4. Max très éloigné de la borne IQR extrême
     Q1 = series.quantile(0.25)
@@ -247,8 +261,7 @@ def _analyze_column(
             action_tags.append("encode_onehot")
         else:
             recommendations.append(
-                f"📦 Cardinalité élevée ({n_unique}) — "
-                f"encodage binaire ou frequency"
+                f"📦 Cardinalité élevée ({n_unique}) — encodage binaire ou frequency"
             )
             action_tags.append("encode_binary_repr")
 
@@ -351,10 +364,7 @@ def generate_eda_report(
     lines.append(f"- **Mémoire** : {memory_mb:.2f} MB")
     lines.append(f"- **Colonnes numériques** : {n_num}")
     lines.append(f"- **Colonnes catégorielles** : {n_cat}")
-    lines.append(
-        f"- **Valeurs manquantes globales** : "
-        f"{total_nan:,} ({pct_nan:.1f} % du total)"
-    )
+    lines.append(f"- **Valeurs manquantes globales** : {total_nan:,} ({pct_nan:.1f} % du total)")
     lines.append(f"- **Lignes dupliquées** : {n_duplicates}")
     lines.append("")
 
@@ -439,20 +449,17 @@ def generate_eda_report(
         (
             "impute_simple",
             "📊 Colonnes à imputer par moyenne / médiane / mode",
-            "Peu de NaN : `fillna_median` (numérique) ou `fillna_category` "
-            "(catégoriel) suffisent.",
+            "Peu de NaN : `fillna_median` (numérique) ou `fillna_category` (catégoriel) suffisent.",
         ),
         (
             "encode_binary",
             "🔀 Variables binaires (2 modalités) — encoder en 0/1",
-            "Utiliser `encode_binary` avec un mapping explicite "
-            "(ex: {'Yes': 1, 'No': 0}).",
+            "Utiliser `encode_binary` avec un mapping explicite (ex: {'Yes': 1, 'No': 0}).",
         ),
         (
             "encode_onehot",
             "🏷️ Variables catégorielles modérées — one-hot encoding",
-            "Utiliser `one_hot_encode` avec `drop_first=True` pour les "
-            "modèles linéaires.",
+            "Utiliser `one_hot_encode` avec `drop_first=True` pour les modèles linéaires.",
         ),
         (
             "encode_binary_repr",

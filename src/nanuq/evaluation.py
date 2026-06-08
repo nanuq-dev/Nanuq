@@ -93,14 +93,12 @@ def diagnose_bias_overfit(
 
     if gap < -overfit_gap:
         return (
-            f"❓  Anomalie — test > train de {-gap:.2f} "
-            f"(vérifier le split ou la fuite de données)",
+            f"❓  Anomalie — test > train de {-gap:.2f} (vérifier le split ou la fuite de données)",
             gap,
         )
 
     return (
-        f"✅ BON — scores équilibrés "
-        f"(train={train_score:.2f}, test={test_score:.2f})",
+        f"✅ BON — scores équilibrés (train={train_score:.2f}, test={test_score:.2f})",
         gap,
     )
 
@@ -127,12 +125,8 @@ def _classification_metrics(
     """
     metrics: dict[str, float | None] = {
         "accuracy": float(accuracy_score(y_true, y_pred)),
-        "precision": float(
-            precision_score(y_true, y_pred, average=average, zero_division=0)
-        ),
-        "recall": float(
-            recall_score(y_true, y_pred, average=average, zero_division=0)
-        ),
+        "precision": float(precision_score(y_true, y_pred, average=average, zero_division=0)),
+        "recall": float(recall_score(y_true, y_pred, average=average, zero_division=0)),
         "f1": float(f1_score(y_true, y_pred, average=average, zero_division=0)),
     }
 
@@ -143,9 +137,7 @@ def _classification_metrics(
             if y_proba.shape[1] == 2:
                 metrics["auc"] = float(roc_auc_score(y_true, y_proba[:, 1]))
             else:
-                metrics["auc"] = float(
-                    roc_auc_score(y_true, y_proba, multi_class="ovr")
-                )
+                metrics["auc"] = float(roc_auc_score(y_true, y_proba, multi_class="ovr"))
         except Exception:
             metrics["auc"] = None
 
@@ -194,12 +186,8 @@ def evaluate_classifier(
     y_train_pred = model.predict(X_train)
     y_test_pred = model.predict(X_test)
 
-    train_metrics = _classification_metrics(
-        y_train, y_train_pred, model, X_train, average=average
-    )
-    test_metrics = _classification_metrics(
-        y_test, y_test_pred, model, X_test, average=average
-    )
+    train_metrics = _classification_metrics(y_train, y_train_pred, model, X_train, average=average)
+    test_metrics = _classification_metrics(y_test, y_test_pred, model, X_test, average=average)
 
     cm = confusion_matrix(y_test, y_test_pred)
     cr = classification_report(y_test, y_test_pred, zero_division=0)
@@ -453,10 +441,11 @@ def grid_search_cv(
 
     # Tableau résumé : les params explorés + score moyen et std
     results_df = pd.DataFrame(grid.cv_results_)
-    interest_cols = (
-        [f"param_{p}" for p in param_grid.keys()]
-        + ["mean_test_score", "std_test_score", "rank_test_score"]
-    )
+    interest_cols = [f"param_{p}" for p in param_grid.keys()] + [
+        "mean_test_score",
+        "std_test_score",
+        "rank_test_score",
+    ]
     results_df = results_df[interest_cols].sort_values("rank_test_score")
 
     if verbose:
@@ -540,9 +529,7 @@ def benchmark_models(
         >>> bench = benchmark_models(models, X_train, y_train, X_test, y_test)
     """
     if task not in ("classification", "regression"):
-        raise ValueError(
-            f"task='{task}' invalide. Utiliser 'classification' ou 'regression'."
-        )
+        raise ValueError(f"task='{task}' invalide. Utiliser 'classification' ou 'regression'.")
 
     rows = []
     for name, model in models.items():
@@ -552,7 +539,12 @@ def benchmark_models(
         # Évaluation sur train et test
         if task == "classification":
             ev = evaluate_classifier(
-                model, X_train, y_train, X_test, y_test, verbose=False,
+                model,
+                X_train,
+                y_train,
+                X_test,
+                y_test,
+                verbose=False,
             )
             row = {
                 "model": name,
@@ -567,7 +559,12 @@ def benchmark_models(
             sort_col = "test_acc"
         else:
             ev = evaluate_regressor(
-                model, X_train, y_train, X_test, y_test, verbose=False,
+                model,
+                X_train,
+                y_train,
+                X_test,
+                y_test,
+                verbose=False,
             )
             row = {
                 "model": name,
@@ -584,16 +581,24 @@ def benchmark_models(
             cv_scoring = "accuracy" if task == "classification" else "r2"
             cv_scores = cross_val_score(
                 type(model)(**model.get_params()),
-                X_train, y_train,
-                cv=cv, scoring=cv_scoring, n_jobs=-1,
+                X_train,
+                y_train,
+                cv=cv,
+                scoring=cv_scoring,
+                n_jobs=-1,
             )
             row["cv_mean"] = float(cv_scores.mean())
             row["cv_std"] = float(cv_scores.std())
 
         rows.append(row)
 
-    bench = pd.DataFrame(rows).set_index("model").sort_values(
-        sort_col, ascending=False,
+    bench = (
+        pd.DataFrame(rows)
+        .set_index("model")
+        .sort_values(
+            sort_col,
+            ascending=False,
+        )
     )
 
     if verbose:

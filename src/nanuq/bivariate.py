@@ -137,19 +137,19 @@ def compare_means_by_class(
         else:
             delta_pct = float("inf") if mean_1 != 0 else 0.0
 
-        rows.append({
-            "feature": col,
-            f"mean_class_{class_0}": mean_0,
-            f"mean_class_{class_1}": mean_1,
-            f"median_class_{class_0}": median_0,
-            f"median_class_{class_1}": median_1,
-            "delta_mean_pct": delta_pct,
-        })
+        rows.append(
+            {
+                "feature": col,
+                f"mean_class_{class_0}": mean_0,
+                f"mean_class_{class_1}": mean_1,
+                f"median_class_{class_0}": median_0,
+                f"median_class_{class_1}": median_1,
+                "delta_mean_pct": delta_pct,
+            }
+        )
 
     result = pd.DataFrame(rows).set_index("feature")
-    return result.reindex(
-        result["delta_mean_pct"].abs().sort_values(ascending=False).index
-    )
+    return result.reindex(result["delta_mean_pct"].abs().sort_values(ascending=False).index)
 
 
 # =============================================================================
@@ -216,19 +216,23 @@ def mann_whitney_features(
         # tout en bas (non significative).
         try:
             u_stat, p_value = stats.mannwhitneyu(
-                group_0, group_1, alternative=alternative,
+                group_0,
+                group_1,
+                alternative=alternative,
             )
             u_stat, p_value = float(u_stat), float(p_value)
         except ValueError:
             u_stat, p_value = float("nan"), 1.0
 
-        rows.append({
-            "feature": col,
-            f"median_class_{class_0}": float(group_0.median()),
-            f"median_class_{class_1}": float(group_1.median()),
-            "u_statistic": u_stat,
-            "p_value": p_value,
-        })
+        rows.append(
+            {
+                "feature": col,
+                f"median_class_{class_0}": float(group_0.median()),
+                f"median_class_{class_1}": float(group_1.median()),
+                "u_statistic": u_stat,
+                "p_value": p_value,
+            }
+        )
 
     result = pd.DataFrame(rows).sort_values("p_value").reset_index(drop=True)
     result["signif"] = result["p_value"].apply(_significance_marker)
@@ -290,12 +294,14 @@ def chi2_features(
             # Table de contingence invalide (modalité unique, etc.)
             chi2_stat, p_value = float("nan"), 1.0
 
-        rows.append({
-            "feature": col,
-            "chi2_statistic": float(chi2_stat),
-            "p_value": float(p_value),
-            "n_modalities": contingency.shape[0],
-        })
+        rows.append(
+            {
+                "feature": col,
+                "chi2_statistic": float(chi2_stat),
+                "p_value": float(p_value),
+                "n_modalities": contingency.shape[0],
+            }
+        )
 
     result = pd.DataFrame(rows).sort_values("p_value").reset_index(drop=True)
     result["signif"] = result["p_value"].apply(_significance_marker)
@@ -364,9 +370,7 @@ def target_correlations(
 
     # Tri par |valeur absolue| de la première méthode
     sort_col = methods[0]
-    result = result.reindex(
-        result[sort_col].abs().sort_values(ascending=False).index
-    )
+    result = result.reindex(result[sort_col].abs().sort_values(ascending=False).index)
     return result
 
 
@@ -423,21 +427,30 @@ def rank_features_by_target_association(
     chi2 = chi2_features(df, categorical_features, target)
 
     # Harmonisation des colonnes pour pouvoir concaténer
-    mw_subset = pd.DataFrame({
-        "feature": mw["feature"],
-        "test": "mann_whitney",
-        "statistic": mw["u_statistic"],
-        "p_value": mw["p_value"],
-    })
-    chi2_subset = pd.DataFrame({
-        "feature": chi2["feature"],
-        "test": "chi2",
-        "statistic": chi2["chi2_statistic"],
-        "p_value": chi2["p_value"],
-    })
+    mw_subset = pd.DataFrame(
+        {
+            "feature": mw["feature"],
+            "test": "mann_whitney",
+            "statistic": mw["u_statistic"],
+            "p_value": mw["p_value"],
+        }
+    )
+    chi2_subset = pd.DataFrame(
+        {
+            "feature": chi2["feature"],
+            "test": "chi2",
+            "statistic": chi2["chi2_statistic"],
+            "p_value": chi2["p_value"],
+        }
+    )
 
-    result = pd.concat(
-        [mw_subset, chi2_subset], ignore_index=True,
-    ).sort_values("p_value").reset_index(drop=True)
+    result = (
+        pd.concat(
+            [mw_subset, chi2_subset],
+            ignore_index=True,
+        )
+        .sort_values("p_value")
+        .reset_index(drop=True)
+    )
     result["signif"] = result["p_value"].apply(_significance_marker)
     return result

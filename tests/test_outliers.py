@@ -44,9 +44,7 @@ def test_detect_outliers_zscore_flags_extreme_values(
     df_with_outliers: pd.DataFrame,
 ) -> None:
     """Avec un seuil 3.0, les 2 outliers extrêmes doivent être détectés."""
-    outliers = detect_outliers_zscore(
-        df_with_outliers, column="x", zscore_threshold=3.0
-    )
+    outliers = detect_outliers_zscore(df_with_outliers, column="x", zscore_threshold=3.0)
 
     # Au moins les 2 outliers ajoutés (les 200/250) sont détectés
     assert len(outliers) >= 1
@@ -93,9 +91,17 @@ def test_iqr_bounds_report_keys(df_with_outliers: pd.DataFrame) -> None:
     report = iqr_bounds_report(df_with_outliers, "x")
 
     expected = {
-        "Q1", "Q3", "IQR", "lower", "upper",
-        "min", "max", "n_below", "n_above",
-        "n_outliers", "pct_outliers",
+        "Q1",
+        "Q3",
+        "IQR",
+        "lower",
+        "upper",
+        "min",
+        "max",
+        "n_below",
+        "n_above",
+        "n_outliers",
+        "pct_outliers",
     }
     assert set(report.keys()) == expected
     assert report["n_outliers"] >= 2
