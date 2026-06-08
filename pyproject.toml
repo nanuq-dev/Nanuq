@@ -1,0 +1,149 @@
+# =============================================================================
+# pyproject.toml - Fichier de configuration central du package nanuq
+# =============================================================================
+# Ce fichier remplace les anciens setup.py / setup.cfg / requirements.txt.
+# Il dit à Python (et aux outils comme uv, pip, build) :
+#   - QUI est ce package (nom, version, auteur)
+#   - DE QUOI il a besoin pour fonctionner (dependencies)
+#   - COMMENT il doit être construit (build-system)
+# =============================================================================
+
+[build-system]
+# Indique l'outil qui construira le package quand on l'installe.
+# "hatchling" est moderne, simple, et recommandé par uv.
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+# -----------------------------------------------------------------------------
+# NOM DU PACKAGE : nanuq (« ours polaire » en inuktitut)
+# -----------------------------------------------------------------------------
+# Le nom PyPI et le nom d'import Python sont identiques : `pip install nanuq`
+# puis `import nanuq`.
+# AVANT LA PREMIÈRE PUBLICATION : vérifier que le nom est toujours libre sur
+# https://pypi.org/project/nanuq/ (404 = disponible).
+# -----------------------------------------------------------------------------
+name = "nanuq"
+version = "0.2.0"
+description = "Boîte à outils Machine Learning réutilisable (chargement, EDA, preprocessing, modélisation, interprétation, persistence)."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Olivier Gruwe", email = "olivier.gruwe@gmail.com" },
+]
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["machine-learning", "data-science", "toolkit", "shap", "scikit-learn", "eda"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# ---------------------------------------------------------------------------
+# Dépendances "principales" : installées automatiquement avec le package.
+# ---------------------------------------------------------------------------
+dependencies = [
+    # Manipulation de données et calcul scientifique
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "pyarrow>=14.0",        # moteur Parquet pour pandas.read_parquet
+
+    # Machine Learning
+    "scikit-learn>=1.3",
+    "xgboost>=2.0",
+    "lightgbm>=4.0",
+    "imbalanced-learn>=0.12",
+
+    # Interprétabilité
+    "shap>=0.44",
+
+    # Visualisation
+    "matplotlib>=3.7",
+    "seaborn>=0.13",
+]
+
+
+# ---------------------------------------------------------------------------
+# Dépendances "optionnelles", regroupées en "extras".
+# Permet de faire `uv pip install -e ".[dev]"` pour le dev uniquement,
+# ou `uv pip install -e ".[notebooks]"` pour avoir Jupyter en plus.
+# ---------------------------------------------------------------------------
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",          # exécution des tests
+    "pytest-cov>=4.1",      # mesure de la couverture de tests
+    "ruff>=0.4",            # linter + formateur (ultra rapide)
+    "mypy>=1.8",            # vérification statique des types
+]
+
+notebooks = [
+    "jupyterlab>=4.0",
+    "ipykernel>=6.0",
+    "papermill>=2.5",       # exécution automatisée de notebooks (CI/CD)
+]
+
+
+# ---------------------------------------------------------------------------
+# URLs affichées sur la page PyPI (à adapter avec ton vrai compte GitHub)
+# ---------------------------------------------------------------------------
+[project.urls]
+Homepage = "https://github.com/nanuq-dev/nanuq"
+Repository = "https://github.com/nanuq-dev/nanuq"
+Issues = "https://github.com/nanuq-dev/nanuq/issues"
+Changelog = "https://github.com/nanuq-dev/nanuq/blob/main/CHANGELOG.md"
+
+
+# ---------------------------------------------------------------------------
+# Configuration des outils de qualité de code
+# ---------------------------------------------------------------------------
+
+[tool.ruff]
+# Longueur maximale des lignes (Black/PEP 8 = 88 traditionnellement).
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Liste des règles activées (E, W = pycodestyle ; F = pyflakes ;
+# I = isort ; N = pep8-naming ; UP = pyupgrade ; B = bugbear).
+select = ["E", "W", "F", "I", "N", "UP", "B"]
+ignore = [
+    "E501",  # ligne trop longue (déjà géré par le formatter)
+    "N806",  # variables locales en majuscules (X, y sont la convention sklearn)
+    "N803",  # paramètres en majuscules (idem : X_train, X_test...)
+]
+
+[tool.pytest.ini_options]
+# Dit à pytest où trouver les tests et comment afficher les résultats.
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short --strict-markers"
+
+# Politique de gestion des warnings :
+#   - tout warning provenant de notre propre code (`nanuq`) devient une
+#     ERREUR (pour ne rien rater),
+#   - les warnings des bibliothèques externes (pandas, sklearn, scipy…) sont
+#     simplement affichés mais ne cassent pas les tests,
+#   - quelques warnings purement environnementaux et non actionnables sont
+#     explicitement ignorés (voir la liste ci-dessous).
+filterwarnings = [
+    "error::Warning:nanuq",  # nos warnings = erreurs
+    # joblib sur Windows : impossible de compter les cores physiques.
+    # Cosmétique uniquement, pas de bug, on ignore.
+    "ignore:Could not find the number of physical cores:UserWarning",
+    # PendingDeprecationWarning : warnings de pré-dépréciation des libs
+    # tierces (seaborn, etc.). Pas actionnables côté nanuq.
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true

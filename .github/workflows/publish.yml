@@ -1,0 +1,34 @@
+name: Publish to PyPI
+
+# Se déclenche uniquement quand on pousse un tag de version (ex: v0.2.0)
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    # Environnement protégé + permissions pour le "Trusted Publishing" PyPI
+    # (publication sécurisée sans token API, via OpenID Connect)
+    environment:
+      name: pypi
+      url: https://pypi.org/p/nanuq
+    permissions:
+      id-token: write  # requis pour le Trusted Publishing
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Construire le package (wheel + sdist)
+        run: uv build
+
+      - name: Publier sur PyPI
+        # uv publish utilise automatiquement le Trusted Publishing si configuré
+        # sur PyPI (Account → Publishing → Add a new publisher).
+        run: uv publish
