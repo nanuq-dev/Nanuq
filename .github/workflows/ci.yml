@@ -1,5 +1,6 @@
 name: CI
 
+# Quand lancer la CI : à chaque push et chaque pull request sur main
 on:
   push:
     branches: [main]
@@ -10,6 +11,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      # fail-fast: false → si une version de Python échoue, les autres
+      # continuent quand même (pour voir tous les problèmes d'un coup).
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
@@ -22,18 +25,19 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Installer le projet + dépendances de dev
+        # uv sync crée un environnement isolé avec la bonne version de Python
+        # et installe le package + ses extras. Robuste et déterministe.
         run: uv sync --extra dev --python ${{ matrix.python-version }}
 
       - name: Lint (ruff)
         run: uv run ruff check src/ tests/
 
-      - name: Format check (ruff) — informatif
+      - name: Format check (ruff)
         run: uv run ruff format --check src/ tests/
-        continue-on-error: true
 
       - name: Types (mypy) — informatif
         run: uv run mypy src/nanuq
-        continue-on-error: true
+        continue-on-error: true  # informatif, ne bloque pas la CI
 
       - name: Tests avec couverture
         env:
