@@ -1,6 +1,5 @@
 name: CI
 
-# Quand lancer la CI : à chaque push et chaque pull request sur main
 on:
   push:
     branches: [main]
@@ -11,7 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
-      # Teste sur plusieurs versions de Python pour garantir la compatibilité
+      fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
 
@@ -21,27 +20,22 @@ jobs:
 
       - name: Installer uv
         uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
 
-      - name: Installer Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
+      - name: Installer le projet + dépendances de dev
+        run: uv sync --extra dev --python ${{ matrix.python-version }}
 
-      - name: Installer le package + dépendances de dev
-        run: uv pip install --system -e ".[dev]"
+      - name: Lint (ruff)
+        run: uv run ruff check src/ tests/
 
-      - name: Vérifier le linting (ruff)
-        run: ruff check src/ tests/
+      - name: Format check (ruff) — informatif
+        run: uv run ruff format --check src/ tests/
+        continue-on-error: true
 
-      - name: Vérifier le formatage (ruff format) — informatif
-        run: ruff format --check src/ tests/
-        continue-on-error: true  # cosmétique, ne bloque pas la CI
+      - name: Types (mypy) — informatif
+        run: uv run mypy src/nanuq
+        continue-on-error: true
 
-      - name: Vérifier les types (mypy)
-        run: mypy src/
-        continue-on-error: true  # informatif, ne bloque pas la CI
-
-      - name: Lancer les tests avec couverture
+      - name: Tests avec couverture
         env:
           LOKY_MAX_CPU_COUNT: "2"
-        run: pytest --cov=nanuq --cov-report=term-missing
+        run: uv run pytest --cov=nanuq --cov-report=term-missing
